@@ -154,7 +154,15 @@ class RotaryEmbedding(CustomOp):
         key: torch.Tensor,
         offsets: Optional[torch.Tensor] = None,
     ) -> Tuple[torch.Tensor, torch.Tensor]:
+        print(f"CHARLIE RotaryEmbedding.forward_cuda", flush=True)
         if _is_cuda and (self.head_size in [64, 128, 256, 512]):
+            print(f"CHARLIE apply_rope_with_cos_sin_cache_inplace: {apply_rope_with_cos_sin_cache_inplace}", flush=True)
+            print(f"CHARLIE positions.shape: {positions.shape}, dtype: {positions.dtype}", flush=True)
+            print(f"CHARLIE query.shape: {query.shape}, dtype: {query.dtype}", flush=True)
+            print(f"CHARLIE key.shape: {key.shape}, dtype: {key.dtype}", flush=True)
+            print(f"CHARLIE head_size: {self.head_size}", flush=True)
+            print(f"CHARLIE cos_sin_cache.shape: {self.cos_sin_cache.shape}, dtype: {self.cos_sin_cache.dtype}", flush=True)
+            print(f"CHARLIE is_neox: {self.is_neox_style}", flush=True)
             apply_rope_with_cos_sin_cache_inplace(
                 positions=positions,
                 query=query,
@@ -164,6 +172,7 @@ class RotaryEmbedding(CustomOp):
                 is_neox=self.is_neox_style,
             )
         else:
+            print(f"CHARLIE vllm_rotary_embedding: {self.vllm_rotary_embedding}", flush=True)
             self.cos_sin_cache = self.cos_sin_cache.to(query.device, dtype=query.dtype)
             self.vllm_rotary_embedding(
                 positions,
@@ -1230,6 +1239,7 @@ def get_rope(
         else:
             raise ValueError(f"Unknown RoPE scaling type {scaling_type}")
     _ROPE_DICT[key] = rotary_emb
+    print(f"rotary_emb: {rotary_emb}", flush=True)
     return rotary_emb
 
 

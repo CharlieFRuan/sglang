@@ -47,6 +47,9 @@ class SiluAndMul(CustomOp):
         d = x.shape[-1] // 2
         output_shape = x.shape[:-1] + (d,)
         out = torch.empty(output_shape, dtype=x.dtype, device=x.device)
+        print(f"CHARLIE silu_and_mul", flush=True)
+        print(f"x - shape: {x.shape}, dtype: {x.dtype}", flush=True)
+        print(f"out - shape: {out.shape}, dtype: {out.dtype}", flush=True)
         silu_and_mul(x, out)
         return out
 

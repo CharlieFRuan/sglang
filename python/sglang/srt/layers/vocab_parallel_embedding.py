@@ -60,6 +60,9 @@ class UnquantizedEmbeddingMethod(QuantizeMethodBase):
         return F.linear(x, layer.weight, bias)
 
     def embedding(self, layer: torch.nn.Module, input_: torch.Tensor) -> torch.Tensor:
+        print(f"CHARLIE F.embedding", flush=True)
+        print(f"layer.weight - shape: {layer.weight.shape}, dtype: {layer.weight.dtype}", flush=True)
+        print(f"input_ - shape: {input_.shape}, dtype: {input_.dtype}", flush=True)
         return F.embedding(input_, layer.weight)
 
 

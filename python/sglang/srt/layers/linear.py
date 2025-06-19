@@ -171,6 +171,10 @@ class UnquantizedLinearMethod(LinearMethodBase):
         x: torch.Tensor,
         bias: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
+        print(f"CHARLIE F.linear", flush=True)
+        print(f"x - shape: {x.shape}, dtype: {x.dtype}", flush=True)
+        print(f"layer.weight - shape: {layer.weight.shape}, dtype: {layer.weight.dtype}", flush=True)
+        print(f"bias - {f'shape: {bias.shape}, dtype: {bias.dtype}' if bias is not None else 'None'}", flush=True)
 
         return F.linear(x, layer.weight, bias)
 

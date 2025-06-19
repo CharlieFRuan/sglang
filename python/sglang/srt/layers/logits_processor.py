@@ -454,6 +454,9 @@ class LogitsProcessor(nn.Module):
             dp_gather_replicate(hidden_states, local_hidden_states, logits_metadata)
 
         if hasattr(lm_head, "weight"):
+            print(f"CHARLIE torch.matmul for _get_logits", flush=True)
+            print(f"hidden_states - shape: {hidden_states.shape}, dtype: {hidden_states.dtype}", flush=True)
+            print(f"lm_head.weight - shape: {lm_head.weight.shape}, dtype: {lm_head.weight.dtype}", flush=True)
             logits = torch.matmul(
                 hidden_states.to(lm_head.weight.dtype), lm_head.weight.T
             )

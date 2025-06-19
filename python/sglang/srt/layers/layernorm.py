@@ -61,8 +61,17 @@ class RMSNorm(CustomOp):
         residual: Optional[torch.Tensor] = None,
     ) -> Union[torch.Tensor, Tuple[torch.Tensor, torch.Tensor]]:
         if residual is not None:
+            print(f"CHARLIE fused_add_rmsnorm", flush=True)
+            print(f"x - shape: {x.shape}, dtype: {x.dtype}", flush=True)
+            print(f"residual - shape: {residual.shape}, dtype: {residual.dtype}", flush=True)
+            print(f"self.weight.data - shape: {self.weight.data.shape}, dtype: {self.weight.data.dtype}", flush=True)
+            print(f"self.variance_epsilon - {self.variance_epsilon}, dtype: {type(self.variance_epsilon)}", flush=True)
             fused_add_rmsnorm(x, residual, self.weight.data, self.variance_epsilon)
             return x, residual
+        print(f"CHARLIE rmsnorm", flush=True)
+        print(f"x - shape: {x.shape}, dtype: {x.dtype}", flush=True)
+        print(f"self.weight.data - shape: {self.weight.data.shape}, dtype: {self.weight.data.dtype}", flush=True)
+        print(f"self.variance_epsilon - {self.variance_epsilon}, dtype: {type(self.variance_epsilon)}", flush=True)
         out = rmsnorm(x, self.weight.data, self.variance_epsilon)
         return out
 

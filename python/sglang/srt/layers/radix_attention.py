@@ -98,6 +98,7 @@ class RadixAttention(nn.Module):
             else:
                 k = k.view(-1, self.tp_k_head_num, self.v_head_dim)
 
+        print(f"CHARLIE forward_batch.attn_backend: {forward_batch.attn_backend}", flush=True)
         return forward_batch.attn_backend.forward(
             q,
             k,

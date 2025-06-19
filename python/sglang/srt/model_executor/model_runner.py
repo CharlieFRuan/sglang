@@ -1206,6 +1206,7 @@ class ModelRunner:
         skip_attn_backend_init: bool,
         pp_proxy_tensors: Optional[PPProxyTensors],
     ) -> Tuple[Union[LogitsProcessorOutput, PPProxyTensors], bool]:
+        # logger.info(f"CHARLIE _forward_raw w/ forward_mode: {forward_batch.forward_mode}")
         can_run_cuda_graph = bool(
             forward_batch.forward_mode.is_cuda_graph()
             and self.cuda_graph_runner

@@ -171,6 +171,7 @@ class FlashInferAttnBackend(AttentionBackend):
                         backend="fa2",
                     )
                 )
+                print(f"CHARLIE self.decode_use_tensor_cores: {self.decode_use_tensor_cores}", flush=True)
                 self.prefill_wrappers_verify.append(
                     BatchPrefillWithPagedKVCacheWrapper(
                         self.workspace_buffer,
@@ -247,6 +248,7 @@ class FlashInferAttnBackend(AttentionBackend):
                 use_ragged = True
                 extend_no_prefix = not any(forward_batch.extend_prefix_lens_cpu)
 
+            print(f"CHARLIE forward_batch.req_pool_indices.device: {forward_batch.req_pool_indices.device}", flush=True)
             self.indices_updater_prefill.update(
                 forward_batch.req_pool_indices,
                 forward_batch.seq_lens,
@@ -302,6 +304,7 @@ class FlashInferAttnBackend(AttentionBackend):
         forward_mode: ForwardMode,
         spec_info: Optional[Union[EagleDraftInput, EagleVerifyInput]],
     ):
+        print(f"CHARLIE init_forward_metadata_capture_cuda_graph", flush=True)
         if forward_mode.is_decode_or_idle():
             decode_wrappers = []
             for i in range(self.num_wrappers):
@@ -471,6 +474,7 @@ class FlashInferAttnBackend(AttentionBackend):
                         layer, cache_loc, k, v, layer.k_scale, layer.v_scale
                     )
 
+            print(f"CHARLIE prefill_wrapper_paged: {prefill_wrapper_paged}", flush=True)
             o = prefill_wrapper_paged.forward(
                 q.view(-1, layer.tp_q_head_num, layer.head_dim),
                 forward_batch.token_to_kv_pool.get_kv_buffer(layer.layer_id),
@@ -482,7 +486,9 @@ class FlashInferAttnBackend(AttentionBackend):
                 v_scale=layer.v_scale,
             )
         else:
+            print(f"CHARLIE self.prefill_wrapper_ragged: {self.prefill_wrapper_ragged}", flush=True)
             if self.forward_metadata.extend_no_prefix:
+                print(f"CHARLIE self.prefill_wrapper_ragged.forward: {self.prefill_wrapper_ragged.forward}", flush=True)
                 o = self.prefill_wrapper_ragged.forward(
                     q.view(-1, layer.tp_q_head_num, layer.head_dim),
                     k.view(-1, layer.tp_k_head_num, layer.head_dim),
@@ -493,6 +499,7 @@ class FlashInferAttnBackend(AttentionBackend):
                 )
 
             else:
+                print(f"CHARLIE self.prefill_wrapper_ragged.forward_return_lse: {self.prefill_wrapper_ragged.forward_return_lse}", flush=True)
                 o1, s1 = self.prefill_wrapper_ragged.forward_return_lse(
                     q.view(-1, layer.tp_q_head_num, layer.head_dim),
                     k.view(-1, layer.tp_k_head_num, layer.head_dim),
@@ -542,6 +549,17 @@ class FlashInferAttnBackend(AttentionBackend):
                 forward_batch.token_to_kv_pool.set_kv_buffer(
                     layer, cache_loc, k, v, layer.k_scale, layer.v_scale
                 )
+
+        print(f"CHARLIE decode_wrapper: {decode_wrapper}", flush=True)
+        my_q = q.contiguous().view(-1, layer.tp_q_head_num, layer.head_dim)
+        print(f"q - shape: {my_q.shape}, dtype: {my_q.dtype}", flush=True)
+        my_kv = forward_batch.token_to_kv_pool.get_kv_buffer(layer.layer_id)
+        print(f"k - shape: {my_kv[0].shape}, dtype: {my_kv[0].dtype}", flush=True)
+        print(f"v - shape: {my_kv[1].shape}, dtype: {my_kv[1].dtype}", flush=True)
+        print(f"sm_scale: {layer.scaling}", flush=True)
+        print(f"logits_soft_cap: {layer.logit_cap}", flush=True)
+        print(f"k_scale: {layer.k_scale}", flush=True)
+        print(f"v_scale: {layer.v_scale}", flush=True)
 
         # Call the wrapped function
         o = decode_wrapper.forward(
@@ -952,6 +970,7 @@ class FlashInferIndicesUpdaterPrefill:
 
         # extend part
         if use_ragged:
+            print(f"CHARLIE qo_indptr.device: {qo_indptr.device}", flush=True)
             wrapper_ragged.begin_forward(
                 qo_indptr,
                 qo_indptr,
